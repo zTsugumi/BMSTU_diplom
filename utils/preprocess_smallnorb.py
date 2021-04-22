@@ -22,13 +22,9 @@ def pre_process(dataset):
         y[idx] = data['label_category']
 
     # Standardize
-    x[..., 0] = (x[..., 0] - x[..., 0].mean()) / x[..., 0].std()
-    x[..., 1] = (x[..., 1] - x[..., 1].mean()) / x[..., 1].std()
+    # x[..., 0] = (x[..., 0] - x[..., 0].mean()) / x[..., 0].std()
+    # x[..., 1] = (x[..., 1] - x[..., 1].mean()) / x[..., 1].std()
     y = tf.one_hot(y, depth=SMALLNORB_CLASS)
-
-    # Rescale
-    with tf.device("/cpu:0"):
-        x = tf.image.resize(x, [SCALE_SHAPE, SCALE_SHAPE])
 
     return x, y
 
@@ -38,6 +34,8 @@ def generator(x, y):
 
 
 def standardize(x, y):
+    x = tf.image.per_image_standardization(x)
+    x = tf.image.resize(x, [SCALE_SHAPE, SCALE_SHAPE])
     x = tf.image.random_crop(x, [PACTH_SHAPE, PACTH_SHAPE, 2])
     x = tf.image.random_brightness(x, max_delta=MAX_DELTA)
     x = tf.image.random_contrast(x, lower=LOWER_CONTRAST, upper=UPPER_CONTRAST)
