@@ -1,0 +1,15 @@
+{
+  "eps": 10e-21,
+  "lr": 5e-4,
+  "lr_decay": 0.97,
+  "lmd_gen": 0.392,
+  "batch_size": 16,
+  "epochs": 150,
+  "dir_data": "./data",
+  "dir_model": "logs/model",
+  "dir_log": "logs/log",
+  "mnist_class": 10,
+  "n_overlay_multimnist": 1000,
+  "shift_multimnist": 6,
+  "pad_multimnist": 4
+}
