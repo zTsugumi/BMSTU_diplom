@@ -45,6 +45,8 @@ class Dataset(object):
             self.x_test, self.y_test = preprocess_smallnorb.pre_process(
                 data_test)
             self.class_names = data_info.features['label_category'].names
+        else:
+            raise RuntimeError('data_name not recognized')
 
     def get_tf_data(self):
         if self.data_name == 'MNIST':
@@ -59,5 +61,7 @@ class Dataset(object):
                 self.x_test, self.y_test,
                 self.conf['batch_size']
             )
+        else:
+            raise RuntimeError('data_name not recognized')
 
         return data_train, data_test
