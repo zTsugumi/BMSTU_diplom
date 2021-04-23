@@ -4,12 +4,12 @@ import tensorflow as tf
 EPS = tf.keras.backend.epsilon()
 
 
-def safe_norm(s, axis=-1):
+def safe_norm(s, axis=-1, keepdims=True):
     '''
     Calculation of norm as tf.norm(), but here we add a small value of eps 
     to the result to avoid 0
     '''
-    s_ = tf.reduce_sum(tf.square(s), axis=axis, keepdims=True)
+    s_ = tf.reduce_sum(tf.square(s), axis=axis, keepdims=keepdims)
     return tf.sqrt(s_ + EPS)
 
 
@@ -114,3 +114,30 @@ class DigitCaps(tf.keras.layers.Layer):
                 b += agreement
         v = tf.squeeze(v, axis=1)                   # (None, C, L)
         return v
+
+
+class Length(tf.keras.layers.Layer):
+    '''
+    This constructs the computation of the length of each capsule in a layer
+    '''
+
+    def call(self, input):
+        return safe_norm(input, axis=-1, keepdims=False)
+
+
+class Mask(tf.keras.layers.Layer):
+    '''
+    This constructs the mask operation
+    '''
+
+    def call(self, input):
+        if type(input) is list:
+            input, mask = input
+        else:
+            x = safe_norm(input, axis=-1, keepdims=False)
+            mask = tf.one_hot(
+                tf.argmax(x, axis=1), depth=x.get_shape().as_list()[1]
+            )
+        masked = tf.keras.backend.batch_flatten(
+            input * tf.expand_dims(mask, axis=-1))
+        return masked

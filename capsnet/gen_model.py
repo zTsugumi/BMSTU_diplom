@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from capsnet.layers import PrimaryCaps, DigitCaps
+from capsnet.layers import PrimaryCaps, DigitCaps, Length, Mask
 
 params = {
     'conv_filters': 256,
@@ -12,16 +12,15 @@ params = {
     'caps_primary_kernel': 9,
     'caps_primary_stride': 2,
 
-    'caps_digit': 10,
     'caps_digit_dim': 16
 }
 
 
-def encoder_graph(input_shape, r):
+def encoder_graph(input_shape, output_class, r):
     '''
     This constructs the Encoder layers of Capsule Network
     '''
-    inputs = tf.keras.Input(input_shape)
+    inputs = tf.keras.Input(shape=input_shape)
 
     x = tf.keras.layers.Conv2D(
         filters=params['conv_filters'],
@@ -35,34 +34,86 @@ def encoder_graph(input_shape, r):
         k=params['caps_primary_kernel'],
         s=params['caps_primary_stride'])(x)
     digit_caps = DigitCaps(
-        C=params['caps_digit'],
+        C=output_class,
         L=params['caps_digit_dim'],
         r=r)(primary_caps)
+    digit_caps_len = Length()(digit_caps)
 
     return tf.keras.Model(
         inputs=inputs,
-        outputs=[primary_caps, digit_caps],
+        outputs=[primary_caps, digit_caps, digit_caps_len],
         name='Encoder'
     )
 
 
-def build_graph(input_shape, mode, r):
+def decoder_graph(input_shape, output_class):
+    '''
+    This constructs the Decoder layers of Capsule Network
+    '''
+    inputs = tf.keras.Input(
+        output_class*params['caps_digit_dim'])
+
+    x = tf.keras.layers.Dense(512, activation='relu')(inputs)
+    x = tf.keras.layers.Dense(1024, activation='relu')(x)
+    x = tf.keras.layers.Dense(np.prod(input_shape), activation='sigmoid')(x)
+    x = tf.keras.layers.Reshape(input_shape)(x)
+
+    return tf.keras.Model(
+        inputs=inputs,
+        outputs=x,
+        name='Decoder'
+    )
+
+
+def build_graph(input_shape, output_class, mode, r):
     '''
     This contructs the whole architecture of Capsule Network 
     (Encoder + Decoder)
     '''
+    # Encoder
     inputs = tf.keras.Input(input_shape)
-    y_true = tf.keras.Input(shape=(10))
+    y_true = tf.keras.Input(output_class)
 
-    encoder = encoder_graph(input_shape, r)
-    primary_caps = encoder(inputs)
+    encoder = encoder_graph(input_shape, output_class, r)
+    primary_caps, digit_caps, digit_caps_len = encoder(inputs)
 
     encoder.summary()
 
-    # if mode == 'train':
-    #     return tf.keras.Model(
-    #         inputs=[inputs, y_true],
-    #         outputs=[None]
-    #     )
-    # else:
-    #     raise RuntimeError('mode not recognized')
+    # Decoder
+    if mode == 'train':
+        masked = Mask()([digit_caps, y_true])
+    elif mode == 'test':
+        masked = Mask()(digit_caps)
+    elif mode == 'exp':
+        noise = tf.keras.Input(
+            (output_class, params['caps_digit_dim']))
+        digit_caps_noise = tf.keras.layers.add([digit_caps, noise])
+        masked = Mask()([digit_caps_noise, y_true])
+    else:
+        raise RuntimeError('mode not recognized')
+
+    decoder = decoder_graph(input_shape, output_class)
+    x_reconstruct = decoder(masked)
+
+    decoder.summary()
+
+    if mode == 'train':
+        return tf.keras.Model(
+            inputs=[inputs, y_true],
+            outputs=[digit_caps_len, x_reconstruct],
+            name='CapsNet'
+        )
+    elif mode == 'test':
+        return tf.keras.Model(
+            inputs=[inputs],
+            outputs=[digit_caps_len, x_reconstruct],
+            name='CapsNet'
+        )
+    elif mode == 'exp':
+        return tf.keras.Model(
+            inputs=[inputs, y_true, noise],
+            outputs=[digit_caps_len, x_reconstruct],
+            name='CapsNet'
+        )
+    else:
+        raise RuntimeError('mode not recognized')
