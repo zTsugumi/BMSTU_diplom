@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from capsnet.layers import PrimaryCaps
+from capsnet.layers import PrimaryCaps, DigitCaps
 
 params = {
     'conv_filters': 256,
@@ -12,7 +12,8 @@ params = {
     'caps_primary_kernel': 9,
     'caps_primary_stride': 2,
 
-    'caps_digit': 5,
+    'caps_digit': 10,
+    'caps_digit_dim': 16
 }
 
 
@@ -33,10 +34,14 @@ def encoder_graph(input_shape, r):
         L=params['caps_primary_dim'],
         k=params['caps_primary_kernel'],
         s=params['caps_primary_stride'])(x)
+    digit_caps = DigitCaps(
+        C=params['caps_digit'],
+        L=params['caps_digit_dim'],
+        r=r)(primary_caps)
 
     return tf.keras.Model(
         inputs=inputs,
-        outputs=[primary_caps],
+        outputs=[primary_caps, digit_caps],
         name='Encoder'
     )
 
