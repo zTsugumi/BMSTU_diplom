@@ -28,11 +28,25 @@ class PrimaryCaps(tf.keras.layers.Layer):
     '''
 
     def __init__(self, C, L, k, s, **kwargs):
-        super().__init__(**kwargs)
+        super(PrimaryCaps, self).__init__(**kwargs)
         self.C = C      # C: number of primary capsules
         self.L = L      # L: primary capsules dimension (num of properties)
         self.k = k      # k: kernel dimension
         self.s = s      # s: stride
+
+    def get_config(self):
+        config = {
+            'C': self.C,
+            'L': self.L,
+            'k': self.k,
+            's': self.s,
+        }
+        base_config = super(PrimaryCaps, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
+    def compute_output_shape(self, input_shape):
+        H, W = input_shape.shape[1:3]
+        return (None, (H - self.k)/self.s + 1, (W - self.k)/self.s + 1, self.C, self.L)
 
     def build(self, input_shape):
         self.kernel = self.add_weight(
@@ -55,8 +69,8 @@ class PrimaryCaps(tf.keras.layers.Layer):
             padding='VALID')
         H, W = x.shape[1:3]
         x = tf.keras.layers.Reshape((H, W, self.C, self.L))(x)
-        x /= self.C     # ??
-        x += self.bias  # ??
+        x /= self.C
+        x += self.bias
         x = squash(x)
         return x
 
@@ -67,10 +81,22 @@ class DigitCaps(tf.keras.layers.Layer):
     '''
 
     def __init__(self, C, L, r, **kwargs):
-        super().__init__(**kwargs)
+        super(DigitCaps, self).__init__(**kwargs)
         self.C = C      # C: number of digit capsules
         self.L = L      # L: digit capsules dimension (num of properties)
         self.r = r      # r: number of routing
+
+    def get_config(self):
+        config = {
+            'C': self.C,
+            'L': self.L,
+            'r': self.r
+        }
+        base_config = super(DigitCaps, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
+    def compute_output_shape(self, input_shape):
+        return (None, self.C, self.L)
 
     def build(self, input_shape):
         H = input_shape[1]
@@ -92,11 +118,13 @@ class DigitCaps(tf.keras.layers.Layer):
 
     def call(self, input):
         H, W, input_C, input_L = input.shape[1:]
-        u = tf.reshape(input, shape=(-1, H*W*input_C, input_L))
+        u = tf.reshape(input, shape=(
+            -1, H*W*input_C, input_L))              # (None, H*W*input_C, input_L)
+
         # Here we multiply (1,8) x (8,160)
         u_hat = tf.einsum(
             '...ji,jik->...jk', u, self.W)          # (None, H*W*input_C, C*L)
-        u_hat = tf.reshape(u, shape=(
+        u_hat = tf.reshape(u_hat, shape=(
             -1, H*W*input_C, self.C, self.L))       # (None, H*W*input_C, C, L)
 
         # Routing
@@ -121,6 +149,13 @@ class Length(tf.keras.layers.Layer):
     This constructs the computation of the length of each capsule in a layer
     '''
 
+    def get_config(self):
+        base_config = super(Length, self).get_config()
+        return base_config
+
+    def compute_output_shape(self, input_shape):
+        return input_shape[:-1]
+
     def call(self, input):
         return safe_norm(input, axis=-1, keepdims=False)
 
@@ -129,6 +164,16 @@ class Mask(tf.keras.layers.Layer):
     '''
     This constructs the mask operation
     '''
+
+    def get_config(self):
+        base_config = super(Mask, self).get_config()
+        return base_config
+
+    def compute_output_shape(self, input_shape):
+        if type(input_shape[0]) is tuple:
+            return tuple([None, input_shape[0][1] * input_shape[0][2]])
+        else:
+            return tuple([None, input_shape[1] * input_shape[2]])
 
     def call(self, input):
         if type(input) is list:

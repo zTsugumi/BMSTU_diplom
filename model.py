@@ -19,17 +19,23 @@ class Model(object):
         with open(self.conf_path) as f_conf:
             self.conf = json.load(f_conf)
 
-    def load_weight(self):
+    def load_weight(self, epoch):
+        file_name = f'/weights-{epoch:02d}.h5'
+        dir_model = self.dir_model + file_name
         try:
-            self.model.load_weigths(self.dir_model)
+            self.model.load_weights(dir_model)
+            print(f'Load {file_name} successful')
         except Exception as e:
-            print('[WARNING] dir_model not found')
+            print(f'[WARNING] {dir_model} not found')
 
-    def save_weight(self):
+    def save_weight(self, epoch):
+        file_name = f'/weights-{epoch:02d}.h5'
+        dir_model = self.dir_model + file_name
         try:
-            self.model.save_weights(self.dir_model)
+            self.model.save_weights(dir_model)
+            print(f'Save {file_name} successful')
         except Exception as e:
-            print('[WARNING] dir_model not found')
+            print(f'[WARNING] {dir_model} not found')
 
     def predict(self, data_set):
         return self.model.predict(data_test)

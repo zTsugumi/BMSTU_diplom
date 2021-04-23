@@ -46,7 +46,7 @@ def generate_tf_data(x_train, y_train, x_test, y_test, batch_size):
     data_train = tf.data.Dataset.from_tensor_slices((x_train, y_train))
     data_train = data_train.map(standardize, num_parallel_calls=N_THREAD)
     data_train = data_train.map(generator, num_parallel_calls=N_THREAD)
-    data_train = data_train.batch(batch_size)
+    data_train = data_train.batch(batch_size, drop_remainder=True)
     data_train = data_train.prefetch(-1)
 
     bound = (SCALE_SHAPE - PACTH_SHAPE) // 2
@@ -54,7 +54,7 @@ def generate_tf_data(x_train, y_train, x_test, y_test, batch_size):
     data_test = tf.data.Dataset.from_tensor_slices((x_test_patch, y_test))
     data_test = data_test.cache()
     data_test = data_test.map(generator, num_parallel_calls=N_THREAD)
-    data_test = data_test.batch(1)
+    data_test = data_test.batch(1, drop_remainder=True)
     data_test = data_test.prefetch(-1)
 
     return data_train, data_test
