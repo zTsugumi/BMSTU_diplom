@@ -1,6 +1,5 @@
 import numpy as np
 import tensorflow as tf
-# import os
 from model import Model
 from utils import checkpoint, lr_sched
 from capsnet.gen_model import build_graph
