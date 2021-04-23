@@ -37,6 +37,9 @@ class CapsNet(Model):
             metrics={'Encoder': 'accuracy'}
         )
 
+        if initial_epoch > 0:
+            self.load_weight(initial_epoch)
+
         history = self.model.fit(
             data_train,
             validation_data=(data_test),

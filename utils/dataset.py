@@ -2,7 +2,6 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_datasets as tfds
 import matplotlib.pyplot as plt
-import os
 import json
 from utils import preprocess_mnist, preprocess_smallnorb
 

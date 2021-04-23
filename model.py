@@ -37,13 +37,13 @@ class Model(object):
         except Exception as e:
             print(f'[WARNING] {dir_model} not found')
 
-    def predict(self, data_set):
-        return self.model.predict(data_test)
+    def predict(self, x):
+        return self.model.predict(x)
 
     def evaluate(self, x_test, y_test):
         y_pred, x_reconstruct = self.model.predict(x_test)
         correct = tf.reduce_sum(
-            tf.argmax(y_pred, axis=1) == tf.argmax(y_test, axis=1))
+            tf.cast(tf.argmax(y_pred, axis=1) == tf.argmax(y_test, axis=1), tf.float32))
         accuracy = correct / y_test.shape[0]
         test_err = 1.0 - accuracy
         print(f'Test Accuracy: {accuracy:.4%}')
