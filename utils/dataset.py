@@ -43,6 +43,8 @@ class Dataset(object):
                 data_train)
             self.x_test, self.y_test = preprocess_smallnorb.pre_process(
                 data_test)
+            self.x_test, self.y_test = preprocess_smallnorb.pre_process_test(
+                self.x_test, self.y_test)
             self.class_names = data_info.features['label_category'].names
         else:
             raise RuntimeError('data_name not recognized')
