@@ -1,4 +1,3 @@
-import numpy as np
 import tensorflow as tf
 from model import Model
 from utils import checkpoint, lr_sched

@@ -53,6 +53,7 @@ class PrimaryCaps(tf.keras.layers.Layer):
             kernel_size=self.k,
             strides=self.s,
             kernel_initializer='glorot_uniform',
+            padding='valid',
             name='conv'
         )
         self.bias = self.add_weight(
