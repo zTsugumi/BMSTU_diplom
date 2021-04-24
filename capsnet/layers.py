@@ -1,4 +1,3 @@
-import numpy as np
 import tensorflow as tf
 
 EPS = tf.keras.backend.epsilon()
@@ -49,10 +48,12 @@ class PrimaryCaps(tf.keras.layers.Layer):
         return (None, (H - self.k)/self.s + 1, (W - self.k)/self.s + 1, self.C, self.L)
 
     def build(self, input_shape):
-        self.kernel = self.add_weight(
-            shape=(self.k, self.k, input_shape[-1], self.C*self.L),
-            initializer='glorot_uniform',
-            name='kernel'
+        self.Conv = tf.keras.layers.Conv2D(
+            filters=self.C*self.L,
+            kernel_size=self.k,
+            strides=self.s,
+            kernel_initializer='glorot_uniform',
+            name='conv'
         )
         self.bias = self.add_weight(
             shape=(self.C, self.L),
@@ -62,11 +63,7 @@ class PrimaryCaps(tf.keras.layers.Layer):
         self.built = True
 
     def call(self, input):
-        x = tf.nn.conv2d(
-            input,
-            filters=self.kernel,
-            strides=self.s,
-            padding='VALID')
+        x = self.Conv(input)
         H, W = x.shape[1:3]
         x = tf.keras.layers.Reshape((H, W, self.C, self.L))(x)
         x /= self.C
