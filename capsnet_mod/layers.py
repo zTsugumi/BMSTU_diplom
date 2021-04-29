@@ -139,3 +139,31 @@ class Length(tf.keras.layers.Layer):
 
     def call(self, input):
         return safe_norm(input, axis=-1, keepdims=False)
+
+
+class Mask(tf.keras.layers.Layer):
+    '''
+    This constructs the mask operation
+    '''
+
+    def get_config(self):
+        base_config = super(Mask, self).get_config()
+        return base_config
+
+    def compute_output_shape(self, input_shape):
+        if type(input_shape[0]) is tuple:
+            return tuple([None, input_shape[0][1] * input_shape[0][2]])
+        else:
+            return tuple([None, input_shape[1] * input_shape[2]])
+
+    def call(self, input):
+        if type(input) is list:
+            input, mask = input
+        else:
+            x = safe_norm(input, axis=-1, keepdims=False)
+            mask = tf.one_hot(
+                tf.argmax(x, axis=1), depth=x.get_shape().as_list()[1]
+            )
+        masked = tf.keras.backend.batch_flatten(
+            input * tf.expand_dims(mask, axis=-1))
+        return masked
