@@ -1,8 +1,8 @@
 import tensorflow as tf
-from capsnet_mod.layers import PrimaryCaps
+from capsnet_mod.layers import PrimaryCaps, DigitCaps
 
 
-def encoder_graph(input_shape):
+def encoder_graph(input_shape, output_class):
     '''
     This constructs the Encoder layers of Modified Capsule Network
     '''
@@ -48,11 +48,12 @@ def encoder_graph(input_shape):
     x = tf.keras.layers.LeakyReLU()(x)
     x = tf.keras.layers.BatchNormalization()(x)
 
-    primary_caps = PrimaryCaps(16, 8, 9, 2)(x)
+    primary_caps = PrimaryCaps(16, 8, 9, 1)(x)
+    digit_caps = DigitCaps(output_class, 16)(primary_caps)
 
     return tf.keras.Model(
         inputs=inputs,
-        outputs=[primary_caps],
+        outputs=[primary_caps, digit_caps],
         name='Encoder'
     )
 
@@ -66,7 +67,7 @@ def build_graph(input_shape, output_class, mode):
     inputs = tf.keras.Input(input_shape)
     y_true = tf.keras.Input(output_class)
 
-    encoder = encoder_graph(input_shape)
-    primary_caps = encoder(inputs)
+    encoder = encoder_graph(input_shape, output_class)
+    primary_caps, digit_caps = encoder(inputs)
 
     encoder.summary()

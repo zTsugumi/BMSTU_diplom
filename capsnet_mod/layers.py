@@ -43,7 +43,8 @@ class PrimaryCaps(tf.keras.layers.Layer):
         return dict(list(base_config.items()) + list(config.items()))
 
     def compute_output_shape(self, input_shape):
-        return (None, self.C, self.L)
+        H, W = input_shape.shape[1:3]
+        return (None, (H - self.k)/self.s + 1, (W - self.k)/self.s + 1, self.C, self.L)
 
     def build(self, input_shape):
         self.DW_Conv = tf.keras.layers.Conv2D(
@@ -60,6 +61,65 @@ class PrimaryCaps(tf.keras.layers.Layer):
 
     def call(self, input):
         x = self.DW_Conv(input)
-        x = tf.keras.layers.Reshape((self.C, self.L))(x)
+        H, W = x.shape[1:3]
+        x = tf.keras.layers.Reshape((H, W, self.C, self.L))(x)
         x = squash(x)
         return x
+
+
+class DigitCaps(tf.keras.layers.Layer):
+    '''
+    This contructs the modified digit capsule layer
+    '''
+
+    def __init__(self, C, L, **kwargs):
+        super(DigitCaps, self).__init__(**kwargs)
+        self.C = C      # C: number of digit capsules
+        self.L = L      # L: digit capsules dimension (num of properties)
+
+    def get_config(self):
+        config = {
+            'C': self.C,
+            'L': self.L
+        }
+        base_config = super(DigitCaps, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
+    def compute_output_shape(self, input_shape):
+        return (None, self.C, self.L)
+
+    def build(self, input_shape):
+        H = input_shape[1]
+        W = input_shape[2]
+        input_C = input_shape[3]
+        input_L = input_shape[4]
+
+        self.W = self.add_weight(
+            shape=(self.C, H*W*input_C, input_L, self.L),
+            initializer='glorot_uniform',
+            name='W'
+        )
+        self.bias = self.add_weight(
+            shape=(self.C, H*W*input_C, 1),
+            initializer='zeros',
+            name='bias'
+        )
+
+    def call(self, input):
+        H, W, input_C, input_L = input.shape[1:]
+        u = tf.reshape(input, shape=(
+            -1, H*W*input_C, input_L))
+
+        u_hat = tf.einsum(
+            '...ji,kjiz->...kjz', u, self.W)
+
+        c = tf.einsum(
+            '...ij,...kj->...i', u_hat, u_hat)[..., None]
+
+        c = c / tf.sqrt(tf.cast(self.L, tf.float32))
+        c = tf.nn.softmax(c, axis=1)
+        c += self.bias
+        s = tf.reduce_sum(u_hat*c, axis=-2)
+        v = squash(s)
+
+        return v
