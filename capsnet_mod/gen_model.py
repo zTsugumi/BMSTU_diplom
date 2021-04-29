@@ -1,5 +1,5 @@
 import tensorflow as tf
-from capsnet_mod.layers import PrimaryCaps, DigitCaps
+from capsnet_mod.layers import PrimaryCaps, DigitCaps, Length
 
 
 def encoder_graph(input_shape, output_class):
@@ -50,10 +50,11 @@ def encoder_graph(input_shape, output_class):
 
     primary_caps = PrimaryCaps(16, 8, 9, 1)(x)
     digit_caps = DigitCaps(output_class, 16)(primary_caps)
+    digit_caps_len = Length()(digit_caps)
 
     return tf.keras.Model(
         inputs=inputs,
-        outputs=[primary_caps, digit_caps],
+        outputs=[primary_caps, digit_caps, digit_caps_len],
         name='Encoder'
     )
 
@@ -68,6 +69,6 @@ def build_graph(input_shape, output_class, mode):
     y_true = tf.keras.Input(output_class)
 
     encoder = encoder_graph(input_shape, output_class)
-    primary_caps, digit_caps = encoder(inputs)
+    primary_caps, digit_caps, digit_caps_len = encoder(inputs)
 
     encoder.summary()

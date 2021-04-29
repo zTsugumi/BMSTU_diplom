@@ -123,3 +123,19 @@ class DigitCaps(tf.keras.layers.Layer):
         v = squash(s)
 
         return v
+
+
+class Length(tf.keras.layers.Layer):
+    '''
+    This constructs the computation of the length of each capsule in a layer
+    '''
+
+    def get_config(self):
+        base_config = super(Length, self).get_config()
+        return base_config
+
+    def compute_output_shape(self, input_shape):
+        return input_shape[:-1]
+
+    def call(self, input):
+        return safe_norm(input, axis=-1, keepdims=False)
