@@ -1,8 +1,7 @@
 import tensorflow as tf
 from model import Model
-from utils import checkpoint, lr_sched
+from utils import checkpoint, lr_sched, margin_loss
 from capsnet.gen_model import build_graph
-from capsnet.loss import margin_loss
 
 
 class CapsNet(Model):

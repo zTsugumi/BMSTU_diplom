@@ -1,8 +1,7 @@
 import tensorflow as tf
 from model import Model
-from utils import checkpoint, lr_sched
+from utils import checkpoint, lr_sched, margin_loss
 from capsnet_mod.gen_model import build_graph
-from capsnet.loss import margin_loss
 
 
 class CapsNetMod(Model):
@@ -10,17 +9,11 @@ class CapsNetMod(Model):
         Model.__init__(self, name, mode, conf_path)
         self.load_conf()
 
-        self.dir_model = self.conf['dir_log'] + f'/capsnet_mod_{self.name}'
-        self.dir_log = self.conf['dir_log'] + f'/capsnet_mod_{self.name}'
+        self.dir_model = self.conf['dir_log'] + f'/capsnet_mod_{name}'
+        self.dir_log = self.conf['dir_log'] + f'/capsnet_mod_{name}'
 
-        if name == 'MNIST':
-            self.model = build_graph(
-                self.conf['input_mnist'], self.conf['class_mnist'], self.mode)
-        elif name == 'SMALLNORB':
-            self.model = build_graph(
-                self.conf['input_smallnorb'], self.conf['class_smallnorb'], self.mode)
-        else:
-            raise RuntimeError('name not recognized')
+        self.model = build_graph(
+            name, self.conf[f'input_{name}'], self.conf[f'class_{name}'], self.mode)
 
     def train(self, dataset, initial_epoch=0):
         data_train, data_test = dataset.get_tf_data()

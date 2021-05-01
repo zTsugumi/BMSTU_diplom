@@ -2,8 +2,7 @@ import numpy as np
 import tensorflow as tf
 from capsnet_mod.layers import PrimaryCaps, DigitCaps, Length, Mask
 
-params = {
-    'conv_filters': 256,
+params_MNIST = {
     'conv_kernel': 9,
     'conv_stride': 1,
 
@@ -15,8 +14,32 @@ params = {
     'caps_digit_dim': 16
 }
 
+params_SMALLNORB = {
+    'conv_kernel': 9,
+    'conv_stride': 1,
 
-def encoder_graph(input_shape, output_class):
+    'caps_primary': 16,
+    'caps_primary_dim': 8,
+    'caps_primary_kernel': 9,
+    'caps_primary_stride': 1,
+
+    'caps_digit_dim': 16
+}
+
+params_CIFAR10 = {
+    'conv_kernel': 9,
+    'conv_stride': 1,
+
+    'caps_primary': 32,
+    'caps_primary_dim': 8,
+    'caps_primary_kernel': 9,
+    'caps_primary_stride': 2,
+
+    'caps_digit_dim': 16
+}
+
+
+def encoder_graph(params, input_shape, output_class):
     '''
     This constructs the Encoder layers of Modified Capsule Network
     '''
@@ -52,13 +75,22 @@ def encoder_graph(input_shape, output_class):
     x = tf.keras.layers.LeakyReLU()(x)
     x = tf.keras.layers.BatchNormalization()(x)
 
-    x = tf.keras.layers.Conv2D(
-        filters=128,
-        kernel_size=3,
-        strides=2,
-        padding='valid',
-        kernel_initializer='he_normal',
-        activation=None)(x)
+    if (params == params_CIFAR10):
+        x = tf.keras.layers.Conv2D(
+            filters=256,
+            kernel_size=3,
+            strides=2,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(x)
+    else:
+        x = tf.keras.layers.Conv2D(
+            filters=128,
+            kernel_size=3,
+            strides=2,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(x)
     x = tf.keras.layers.LeakyReLU()(x)
     x = tf.keras.layers.BatchNormalization()(x)
 
@@ -79,7 +111,7 @@ def encoder_graph(input_shape, output_class):
     )
 
 
-def decoder_graph(input_shape, output_class):
+def decoder_graph(params, input_shape, output_class):
     '''
     This constructs the Decoder layers
     '''
@@ -99,7 +131,7 @@ def decoder_graph(input_shape, output_class):
     )
 
 
-def build_graph(input_shape, output_class, mode):
+def build_graph(name, input_shape, output_class, mode):
     '''
     This contructs the whole architecture of Capsule Network 
     (Encoder + Decoder)
@@ -108,7 +140,15 @@ def build_graph(input_shape, output_class, mode):
     inputs = tf.keras.Input(input_shape)
     y_true = tf.keras.Input(output_class)
 
-    encoder = encoder_graph(input_shape, output_class)
+    if name == 'MNIST':
+        encoder = encoder_graph(params_MNIST, input_shape, output_class)
+    elif name == 'SMALLNORB':
+        encoder = encoder_graph(params_SMALLNORB, input_shape, output_class)
+    elif name == 'CIFAR10':
+        encoder = encoder_graph(params_CIFAR10, input_shape, output_class)
+    else:
+        raise RuntimeError(f'name {name} not recognized')
+
     primary_caps, digit_caps, digit_caps_len = encoder(inputs)
 
     encoder.summary()
@@ -124,9 +164,17 @@ def build_graph(input_shape, output_class, mode):
         digit_caps_noise = tf.keras.layers.add([digit_caps, noise])
         masked = Mask()([digit_caps_noise, y_true])
     else:
-        raise RuntimeError('mode not recognized')
+        raise RuntimeError(f'mode {mode} not recognized')
 
-    decoder = decoder_graph(input_shape, output_class)
+    if name == 'MNIST':
+        decoder = decoder_graph(params_MNIST, input_shape, output_class)
+    elif name == 'SMALLNORB':
+        decoder = decoder_graph(params_SMALLNORB, input_shape, output_class)
+    elif name == 'CIFAR10':
+        decoder = decoder_graph(params_CIFAR10, input_shape, output_class)
+    else:
+        raise RuntimeError(f'name {name} not recognized')
+
     x_reconstruct = decoder(masked)
 
     decoder.summary()
@@ -150,4 +198,4 @@ def build_graph(input_shape, output_class, mode):
             name='CapsNetMod'
         )
     else:
-        raise RuntimeError('mode not recognized')
+        raise RuntimeError(f'mode {mode} not recognized')
