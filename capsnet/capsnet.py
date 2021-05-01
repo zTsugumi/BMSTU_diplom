@@ -44,7 +44,6 @@ class CapsNet(Model):
             epochs=self.conf['epochs'],
             batch_size=self.conf['batch_size'],
             initial_epoch=initial_epoch,
-
             callbacks=[cp, tb, lr]
         )
 
