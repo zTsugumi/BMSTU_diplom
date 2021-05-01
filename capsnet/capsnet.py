@@ -10,17 +10,11 @@ class CapsNet(Model):
         Model.__init__(self, name, mode, conf_path)
         self.load_conf()
 
-        self.dir_model = self.conf['dir_log'] + f'/capsnet_{self.name}'
-        self.dir_log = self.conf['dir_log'] + f'/capsnet_{self.name}'
+        self.dir_model = self.conf['dir_log'] + f'/capsnet_{name}'
+        self.dir_log = self.conf['dir_log'] + f'/capsnet_{name}'
 
-        if name == 'MNIST':
-            self.model = build_graph(
-                self.conf['input_mnist'], self.conf['class_mnist'], self.mode, r)
-        elif name == 'SMALLNORB':
-            self.model = build_graph(
-                self.conf['input_smallnorb'], self.conf['class_smallnorb'], self.mode, r)
-        else:
-            raise RuntimeError('name not recognized')
+        self.model = build_graph(
+            name, self.conf[f'input_{name}'], self.conf[f'class_{name}'], self.mode, r)
 
     def train(self, dataset, initial_epoch=0):
         data_train, data_test = dataset.get_tf_data()

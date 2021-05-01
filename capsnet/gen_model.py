@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from capsnet.layers import PrimaryCaps, DigitCaps, Length, Mask
 
-params = {
+params_MNIST = {
     'conv_filters': 256,
     'conv_kernel': 9,
     'conv_stride': 1,
@@ -15,8 +15,34 @@ params = {
     'caps_digit_dim': 16
 }
 
+params_SMALLNORB = {
+    'conv_filters': 256,
+    'conv_kernel': 9,
+    'conv_stride': 1,
 
-def encoder_graph(input_shape, output_class, r):
+    'caps_primary': 32,
+    'caps_primary_dim': 8,
+    'caps_primary_kernel': 9,
+    'caps_primary_stride': 2,
+
+    'caps_digit_dim': 16
+}
+
+params_CIFAR10 = {
+    'conv_filters': 256,
+    'conv_kernel': 9,
+    'conv_stride': 1,
+
+    'caps_primary': 64,
+    'caps_primary_dim': 8,
+    'caps_primary_kernel': 9,
+    'caps_primary_stride': 2,
+
+    'caps_digit_dim': 16
+}
+
+
+def encoder_graph(params, input_shape, output_class, r):
     '''
     This constructs the Encoder layers of Capsule Network
     '''
@@ -46,7 +72,7 @@ def encoder_graph(input_shape, output_class, r):
     )
 
 
-def decoder_graph(input_shape, output_class):
+def decoder_graph(params, input_shape, output_class):
     '''
     This constructs the Decoder layers of Capsule Network
     '''
@@ -65,7 +91,7 @@ def decoder_graph(input_shape, output_class):
     )
 
 
-def build_graph(input_shape, output_class, mode, r):
+def build_graph(name, input_shape, output_class, mode, r):
     '''
     This contructs the whole architecture of Capsule Network 
     (Encoder + Decoder)
@@ -74,7 +100,15 @@ def build_graph(input_shape, output_class, mode, r):
     inputs = tf.keras.Input(input_shape)
     y_true = tf.keras.Input(output_class)
 
-    encoder = encoder_graph(input_shape, output_class, r)
+    if name == 'MNIST':
+        encoder = encoder_graph(params_MNIST, input_shape, output_class, r)
+    elif name == 'SMALLNORB':
+        encoder = encoder_graph(params_SMALLNORB, input_shape, output_class, r)
+    elif name == 'CIFAR10':
+        encoder = encoder_graph(params_CIFAR10, input_shape, output_class, r)
+    else:
+        raise RuntimeError(f'name {name} not recognized')
+
     primary_caps, digit_caps, digit_caps_len = encoder(inputs)
 
     encoder.summary()
@@ -90,9 +124,17 @@ def build_graph(input_shape, output_class, mode, r):
         digit_caps_noise = tf.keras.layers.add([digit_caps, noise])
         masked = Mask()([digit_caps_noise, y_true])
     else:
-        raise RuntimeError('mode not recognized')
+        raise RuntimeError(f'mode {mode} not recognized')
 
-    decoder = decoder_graph(input_shape, output_class)
+    if name == 'MNIST':
+        decoder = decoder_graph(params_MNIST, input_shape, output_class)
+    elif name == 'SMALLNORB':
+        decoder = decoder_graph(params_SMALLNORB, input_shape, output_class)
+    elif name == 'CIFAR10':
+        decoder = decoder_graph(params_CIFAR10, input_shape, output_class)
+    else:
+        raise RuntimeError(f'name {name} not recognized')
+
     x_reconstruct = decoder(masked)
 
     decoder.summary()
@@ -116,4 +158,4 @@ def build_graph(input_shape, output_class, mode, r):
             name='CapsNet'
         )
     else:
-        raise RuntimeError('mode not recognized')
+        raise RuntimeError(f'mode {mode} not recognized')

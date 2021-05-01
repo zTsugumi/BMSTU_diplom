@@ -12,7 +12,7 @@ def plot_image(x_batch, y_batch, class_names, n_img):
     for x, y, ax in zip(x_batch, y_batch, axes):
         ax.set_xticks([])
         ax.set_yticks([])
-        ax.imshow(x[..., 0], cmap='gray')
+        ax.imshow(x, cmap='gray')
         ax.set_title(class_names[tf.argmax(y)])
     plt.tight_layout()
     plt.show()
@@ -26,7 +26,7 @@ def plot_image_misclass(x, y_true, y_pred, class_names, n_img):
     idc = tf.squeeze(
         tf.where(tf.argmax(y_pred, axis=-1) != tf.argmax(y_true, axis=-1)))
 
-    fig, axes = plt.subplots(r, c, figsize=(5, 5))
+    fig, axes = plt.subplots(r, c, figsize=(10, 5))
     axes = axes.flatten()
     for idx, ax in zip(idc, axes):
         ax.imshow(x[idx, ..., 0], cmap='gray')
