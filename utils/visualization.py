@@ -12,7 +12,7 @@ def plot_image(x_batch, y_batch, class_names, n_img):
     for x, y, ax in zip(x_batch, y_batch, axes):
         ax.set_xticks([])
         ax.set_yticks([])
-        ax.imshow(x, cmap='gray')
+        ax.imshow(x[..., 0], cmap='gray')
         ax.set_title(class_names[tf.argmax(y)])
     plt.tight_layout()
     plt.show()

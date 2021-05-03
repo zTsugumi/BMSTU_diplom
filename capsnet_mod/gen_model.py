@@ -3,6 +3,7 @@ import tensorflow as tf
 from capsnet_mod.layers import PrimaryCaps, DigitCaps, Length, Mask
 
 params_MNIST = {
+    'name': 'MNIST',
     'conv_kernel': 9,
     'conv_stride': 1,
 
@@ -15,18 +16,7 @@ params_MNIST = {
 }
 
 params_SMALLNORB = {
-    'conv_kernel': 9,
-    'conv_stride': 1,
-
-    'caps_primary': 16,
-    'caps_primary_dim': 8,
-    'caps_primary_kernel': 9,
-    'caps_primary_stride': 1,
-
-    'caps_digit_dim': 16
-}
-
-params_CIFAR10 = {
+    'name': 'SMALLNORB',
     'conv_kernel': 9,
     'conv_stride': 1,
 
@@ -38,6 +28,19 @@ params_CIFAR10 = {
     'caps_digit_dim': 16
 }
 
+params_CIFAR10 = {
+    'name': 'CIFAR10',
+    'conv_kernel': 9,
+    'conv_stride': 1,
+
+    'caps_primary': 64,
+    'caps_primary_dim': 8,
+    'caps_primary_kernel': 9,
+    'caps_primary_stride': 2,
+
+    'caps_digit_dim': 32
+}
+
 
 def encoder_graph(params, input_shape, output_class):
     '''
@@ -45,45 +48,37 @@ def encoder_graph(params, input_shape, output_class):
     '''
     inputs = tf.keras.Input(input_shape)
 
-    x = tf.keras.layers.Conv2D(
-        filters=32,
-        kernel_size=5,
-        strides=1,
-        padding='valid',
-        kernel_initializer='he_normal',
-        activation=None)(inputs)
-    x = tf.keras.layers.LeakyReLU()(x)
-    x = tf.keras.layers.BatchNormalization()(x)
-
-    x = tf.keras.layers.Conv2D(
-        filters=64,
-        kernel_size=3,
-        strides=1,
-        padding='valid',
-        kernel_initializer='he_normal',
-        activation=None)(x)
-    x = tf.keras.layers.LeakyReLU()(x)
-    x = tf.keras.layers.BatchNormalization()(x)
-
-    x = tf.keras.layers.Conv2D(
-        filters=64,
-        kernel_size=3,
-        strides=1,
-        padding='valid',
-        kernel_initializer='he_normal',
-        activation=None)(x)
-    x = tf.keras.layers.LeakyReLU()(x)
-    x = tf.keras.layers.BatchNormalization()(x)
-
-    if (params == params_CIFAR10):
+    if params == params_MNIST:
         x = tf.keras.layers.Conv2D(
-            filters=256,
+            filters=32,
+            kernel_size=5,
+            strides=1,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(inputs)
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+
+        x = tf.keras.layers.Conv2D(
+            filters=64,
             kernel_size=3,
-            strides=2,
+            strides=1,
             padding='valid',
             kernel_initializer='he_normal',
             activation=None)(x)
-    else:
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+
+        x = tf.keras.layers.Conv2D(
+            filters=64,
+            kernel_size=3,
+            strides=1,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(x)
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+
         x = tf.keras.layers.Conv2D(
             filters=128,
             kernel_size=3,
@@ -91,8 +86,100 @@ def encoder_graph(params, input_shape, output_class):
             padding='valid',
             kernel_initializer='he_normal',
             activation=None)(x)
-    x = tf.keras.layers.LeakyReLU()(x)
-    x = tf.keras.layers.BatchNormalization()(x)
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+    elif params == params_SMALLNORB:
+        x = tf.keras.layers.Conv2D(
+            filters=32,
+            kernel_size=5,
+            strides=1,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(inputs)
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+
+        x = tf.keras.layers.Conv2D(
+            filters=64,
+            kernel_size=3,
+            strides=1,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(x)
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+
+        x = tf.keras.layers.Conv2D(
+            filters=128,
+            kernel_size=3,
+            strides=1,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(x)
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+
+        x = tf.keras.layers.Conv2D(
+            filters=256,
+            kernel_size=3,
+            strides=2,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(x)
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+    elif params == params_CIFAR10:
+        x = tf.keras.layers.Conv2D(
+            filters=32,
+            kernel_size=3,
+            strides=1,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(inputs)
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+
+        x = tf.keras.layers.Conv2D(
+            filters=64,
+            kernel_size=3,
+            strides=1,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(x)
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+
+        x = tf.keras.layers.Conv2D(
+            filters=128,
+            kernel_size=3,
+            strides=1,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(x)
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+
+        x = tf.keras.layers.Conv2D(
+            filters=256,
+            kernel_size=3,
+            strides=1,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(x)
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+
+        x = tf.keras.layers.Conv2D(
+            filters=512,
+            kernel_size=3,
+            strides=2,
+            padding='valid',
+            kernel_initializer='he_normal',
+            activation=None)(x)
+        x = tf.keras.layers.LeakyReLU()(x)
+        x = tf.keras.layers.BatchNormalization()(x)
+    else:
+        raise RuntimeError('model not recognized')
 
     primary_caps = PrimaryCaps(
         C=params['caps_primary'],
@@ -116,13 +203,41 @@ def decoder_graph(params, input_shape, output_class):
     This constructs the Decoder layers
     '''
     inputs = tf.keras.Input(
-        output_class*params['caps_digit_dim']
+        params['caps_digit_dim']
     )
 
-    x = tf.keras.layers.Dense(512, activation='relu')(inputs)
-    x = tf.keras.layers.Dense(1024, activation='relu')(x)
-    x = tf.keras.layers.Dense(np.prod(input_shape), activation='sigmoid')(x)
-    x = tf.keras.layers.Reshape(input_shape)(x)
+    if params == params_MNIST:
+        x = tf.keras.layers.Dense(784, activation='relu')(inputs)
+        x = tf.keras.layers.Reshape((7, 7, 16))(x)
+    elif params == params_SMALLNORB:
+        x = tf.keras.layers.Dense(1024, activation='relu')(inputs)
+        x = tf.keras.layers.Reshape((8, 8, 16))(x)
+    elif params == params_CIFAR10:
+        x = tf.keras.layers.Dense(1024, activation='relu')(inputs)
+        x = tf.keras.layers.Reshape((8, 8, 16))(x)
+    else:
+        raise RuntimeError(f'model not recognized')
+
+    x = tf.keras.layers.BatchNormalization(momentum=0.8)(x)
+    x = tf.keras.layers.Conv2DTranspose(64, 3, (1, 1), padding='same')(x)
+    x = tf.keras.layers.Conv2DTranspose(32, 3, (2, 2), padding='same')(x)
+    x = tf.keras.layers.Conv2DTranspose(16, 3, (2, 2), padding='same')(x)
+    x = tf.keras.layers.Conv2DTranspose(8, 3, (1, 1), padding='same')(x)
+
+    if params == params_MNIST:
+        x = tf.keras.layers.Conv2DTranspose(1, 3, (1, 1), padding='same')(x)
+        x = tf.keras.layers.Activation('relu')(x)
+        x = tf.keras.layers.Reshape((28, 28, 1))(x)
+    elif params == params_SMALLNORB:
+        x = tf.keras.layers.Conv2DTranspose(2, 3, (1, 1), padding='same')(x)
+        x = tf.keras.layers.Activation('relu')(x)
+        x = tf.keras.layers.Reshape((32, 32, 2))(x)
+    elif params == params_CIFAR10:
+        x = tf.keras.layers.Conv2DTranspose(3, 3, (1, 1), padding='same')(x)
+        x = tf.keras.layers.Activation('relu')(x)
+        x = tf.keras.layers.Reshape((32, 32, 3))(x)
+    else:
+        raise RuntimeError(f'model not recognized')
 
     return tf.keras.Model(
         inputs=inputs,
