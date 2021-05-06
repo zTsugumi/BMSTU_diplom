@@ -54,7 +54,7 @@ class PrimaryCaps(tf.keras.layers.Layer):
             kernel_initializer='glorot_uniform',
             padding='valid',
             groups=self.C*self.L,
-            activation='linear',
+            activation='relu',
             name='conv'
         )
         self.built = True
