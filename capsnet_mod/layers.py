@@ -94,12 +94,12 @@ class DigitCaps(tf.keras.layers.Layer):
         input_C = input_shape[3]
         input_L = input_shape[4]
 
-        self.W = self.add_weight(
+        self.W = self.add_weight(               # Transformation matrix
             shape=(self.C, H*W*input_C, input_L, self.L),
             initializer='glorot_uniform',
             name='W'
         )
-        self.bias = self.add_weight(
+        self.C = self.add_weight(               # Coupling Coefficient
             shape=(self.C, H*W*input_C, 1),
             initializer='zeros',
             name='bias'
@@ -111,15 +111,14 @@ class DigitCaps(tf.keras.layers.Layer):
             -1, H*W*input_C, input_L))
 
         u_hat = tf.einsum(
-            '...ji,kjiz->...kjz', u, self.W)
+            '...ij,kijl->...kil', u, self.W)
 
-        c = tf.einsum(
+        a = tf.einsum(                          # Calculate attention
             '...ij,...kj->...i', u_hat, u_hat)[..., None]
+        a = a / tf.sqrt(tf.cast(self.L, tf.float32))
+        a = tf.nn.softmax(a, axis=1)
 
-        c = c / tf.sqrt(tf.cast(self.L, tf.float32))
-        c = tf.nn.softmax(c, axis=1)
-        c += self.bias
-        s = tf.reduce_sum(u_hat*c, axis=-2)
+        s = tf.reduce_sum(u_hat*(a + self.C), axis=-2)
         v = squash(s)
 
         return v
@@ -140,33 +139,6 @@ class Length(tf.keras.layers.Layer):
     def call(self, input):
         return safe_norm(input, axis=-1, keepdims=False)
 
-
-# class Mask(tf.keras.layers.Layer):
-#     '''
-#     This constructs the mask operation
-#     '''
-
-#     def get_config(self):
-#         base_config = super(Mask, self).get_config()
-#         return base_config
-
-#     def compute_output_shape(self, input_shape):
-#         if type(input_shape[0]) is tuple:
-#             return tuple([None, input_shape[0][1] * input_shape[0][2]])
-#         else:
-#             return tuple([None, input_shape[1] * input_shape[2]])
-
-#     def call(self, input):
-#         if type(input) is list:
-#             input, mask = input
-#         else:
-#             x = safe_norm(input, axis=-1, keepdims=False)
-#             mask = tf.one_hot(
-#                 tf.argmax(x, axis=1), depth=x.get_shape().as_list()[1]
-#             )
-#         masked = tf.keras.backend.batch_flatten(
-#             input * tf.expand_dims(mask, axis=-1))
-#         return masked
 
 class Mask(tf.keras.layers.Layer):
     '''

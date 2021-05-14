@@ -102,7 +102,7 @@ class DigitCaps(tf.keras.layers.Layer):
         input_C = input_shape[3]
         input_L = input_shape[4]
 
-        self.W = self.add_weight(
+        self.W = self.add_weight(               # Transformation matrix
             shape=(H*W*input_C, input_L, self.C*self.L),
             initializer='glorot_uniform',
             name='W'
@@ -121,7 +121,7 @@ class DigitCaps(tf.keras.layers.Layer):
 
         # Here we multiply (1,8) x (8,160)
         u_hat = tf.einsum(
-            '...ji,jik->...jk', u, self.W)          # (None, H*W*input_C, C*L)
+            '...ij,ijk->...ik', u, self.W)          # (None, H*W*input_C, C*L)
         u_hat = tf.reshape(u_hat, shape=(
             -1, H*W*input_C, self.C, self.L))       # (None, H*W*input_C, C, L)
 
