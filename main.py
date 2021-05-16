@@ -1,14 +1,17 @@
 import tensorflow as tf
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from utils import Dataset, plot_image, plot_image_misclass
+import numpy as np
+import traceback
+import sys
+import cv2
+
+from utils import Dataset, plot_image_misclass
 from capsnet import CapsNet
 from capsnet_mod import CapsNetMod
 
-import traceback
-import sys
-
+from PyQt5 import QtWidgets, QtCore, uic
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -70,13 +73,33 @@ class MainWindow(QMainWindow):
 
         self.threadpool = QThreadPool()
 
-        self.progBar_Test.setMaximum(1)
-        self.pb_Test_load.clicked.connect(lambda: self.load_model())
+        self.progBar.setMaximum(1)
+        self.pb_Test_load.clicked.connect(lambda: self.load_model('test'))
         self.pb_Test_test.clicked.connect(lambda: self.test_model())
+        self.pb_Exp_loadModel.clicked.connect(lambda: self.load_model('exp'))
+        self.pb_Exp_loadImg.clicked.connect(lambda: self.load_image())
+        self.pb_Exp_run.clicked.connect(lambda: self.run_predict())
+        self.hs_Exp_1.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_2.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_3.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_4.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_5.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_6.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_7.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_8.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_9.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_10.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_11.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_12.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_13.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_14.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_15.valueChanged.connect(lambda: self.run_predict())
+        self.hs_Exp_16.valueChanged.connect(lambda: self.run_predict())
+        self.dataset = None
         self.data = None
         self.model = None
 
-    def load_model(self):
+    def load_model(self, mode):
         options = QFileDialog.Options()
         filename, _ = QFileDialog.getOpenFileName(
             self, 'QFileDialog.getOpenFileName()', '', 'All Files (*)', options=options)
@@ -84,26 +107,33 @@ class MainWindow(QMainWindow):
         if not filename:
             return
 
-        dataset = str(self.cb_Test_dataset.currentText())
-        model_idx = int(self.cb_Test_model.currentIndex())
-
-        self.progBar_Test.setMaximum(0)
+        self.progBar.setMaximum(0)
 
         def load():
-            self.data = Dataset(dataset)
+            if mode == 'test':
+                self.dataset = str(self.cb_Test_dataset.currentText())
+                model_idx = int(self.cb_Test_model.currentIndex())
+            elif mode == 'exp':
+                self.dataset = str(self.cb_Exp_dataset.currentText())
+                model_idx = int(self.cb_Exp_model.currentIndex())
+
+            if mode != 'exp':
+                self.data = Dataset(self.dataset)
+
             if model_idx == 0:
-                self.model = CapsNet(dataset, mode='test', r=3)
+                self.model = CapsNet(self.dataset, mode=mode, r=3)
             elif model_idx == 1:
-                self.model = CapsNetMod(dataset, mode='test')
+                self.model = CapsNetMod(self.dataset, mode=mode)
+
             return self.model.load_weight(0, filename)
 
         def output(ok):
             if not ok:
                 self.model = None
-                msg_box('warning', 'Load model failed!')
+                msg_box('warning', 'Load data + model failed!')
             else:
-                msg_box('info', 'Load model successful!')
-            self.progBar_Test.setMaximum(1)
+                msg_box('info', 'Load data + model successful!')
+            self.progBar.setMaximum(1)
 
         worker = Worker(load)
         worker.signals.result.connect(output)
@@ -114,11 +144,11 @@ class MainWindow(QMainWindow):
             msg_box('warning', 'Model not loaded!')
             return
 
-        self.progBar_Test.setMaximum(0)
+        self.progBar.setMaximum(0)
 
         def test():
             acc, err = self.model.evaluate(self.data.x_test, self.data.y_test)
-            y_pred = self.model.predict(self.data.x_test)[0]
+            y_pred, _, _, _ = self.model.predict(self.data.x_test)
 
             return acc, err, y_pred
 
@@ -129,9 +159,130 @@ class MainWindow(QMainWindow):
             n_img = int(self.le_Test_nimg.text())
             plot_image_misclass(
                 self.data.x_test, self.data.y_test, y_pred, self.data.class_names, n_img)
-            self.progBar_Test.setMaximum(1)
+            self.progBar.setMaximum(1)
 
         worker = Worker(test)
+        worker.signals.result.connect(output)
+        self.threadpool.start(worker)
+
+    def load_image(self):
+        options = QFileDialog.Options()
+        data_dir, _ = QFileDialog.getOpenFileName(
+            self, 'QFileDialog.getOpenFileName()', '', 'All Files (*)', options=options)
+
+        if not data_dir:
+            return
+
+        self.progBar.setMaximum(0)
+
+        # Reload data
+        def load():
+            self.dataset = str(self.cb_Exp_dataset.currentText())
+            self.data = Dataset(self.dataset, custom_dir=data_dir)
+
+        def output():
+            try:
+                self.data.x_custom
+            except:
+                self.data = None
+                msg_box('warning', 'Load data failed!')
+            else:
+                msg_box('info', 'Load data successful!')
+            self.progBar.setMaximum(1)
+
+        worker = Worker(load)
+        worker.signals.result.connect(output)
+        self.threadpool.start(worker)
+
+        # Plot image to screen
+        try:
+            img = cv2.imread(data_dir)
+            qformat = QImage.Format_Indexed8
+            if len(img.shape) == 3:
+                if img.shape[2] == 4:
+                    qformat = QImage.Format_RGBA8888
+                else:
+                    qformat = QImage.Format_RGB888
+            img = QImage(img,
+                         img.shape[1],
+                         img.shape[0],
+                         img.strides[0],
+                         qformat)
+            img = img.rgbSwapped()
+            pixmap = QPixmap.fromImage(img)
+            pixmap = pixmap.scaled(self.label_Exp_img.size(),
+                                   QtCore.Qt.KeepAspectRatio)
+            self.label_Exp_img.setPixmap(pixmap)
+            self.label_Exp_img.setAlignment(
+                QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        except:
+            pass
+
+    def run_predict(self):
+        if not self.data or not self.model:
+            msg_box('warning', 'Model or Image not loaded!')
+            return
+
+        self.progBar.setMaximum(0)
+
+        def predict():
+            # Get noise
+            noise = np.array([float(self.hs_Exp_1.value()) / 100.0,
+                              float(self.hs_Exp_2.value()) / 100.0,
+                              float(self.hs_Exp_3.value()) / 100.0,
+                              float(self.hs_Exp_4.value()) / 100.0,
+                              float(self.hs_Exp_5.value()) / 100.0,
+                              float(self.hs_Exp_6.value()) / 100.0,
+                              float(self.hs_Exp_7.value()) / 100.0,
+                              float(self.hs_Exp_8.value()) / 100.0,
+                              float(self.hs_Exp_9.value()) / 100.0,
+                              float(self.hs_Exp_10.value()) / 100.0,
+                              float(self.hs_Exp_11.value()) / 100.0,
+                              float(self.hs_Exp_12.value()) / 100.0,
+                              float(self.hs_Exp_13.value()) / 100.0,
+                              float(self.hs_Exp_14.value()) / 100.0,
+                              float(self.hs_Exp_15.value()) / 100.0,
+                              float(self.hs_Exp_16.value()) / 100.0])
+            nclass = self.model.conf[f'class_{self.dataset}']
+            noise = np.tile(noise, nclass)
+            noise = np.reshape(noise, [1, nclass, 16])
+
+            _, label, acc, x_reconstruct = self.model.predict(
+                [self.data.x_custom, noise])
+
+            x_reconstruct = tf.cast(x_reconstruct * 255.0, dtype=tf.int8)
+
+            # Plot result to screen
+            try:
+                self.label_Exp_class.setText(f'Label: {label[0]:d}')
+                self.label_Exp_acc.setText(f'Acc: {acc[0]*100:.4f}%')
+                img = tf.squeeze(x_reconstruct).numpy()
+
+                qformat = QImage.Format_Indexed8
+                if len(img.shape) == 3:
+                    if img.shape[2] == 4:
+                        qformat = QImage.Format_RGBA8888
+                    else:
+                        qformat = QImage.Format_RGB888
+                img = QImage(img,
+                             img.shape[1],
+                             img.shape[0],
+                             img.strides[0],
+                             qformat)
+                img = img.rgbSwapped()
+                pixmap = QPixmap.fromImage(img)
+                pixmap = pixmap.scaled(self.label_Exp_img.size(),
+                                       QtCore.Qt.KeepAspectRatio)
+                self.label_Exp_img2.setPixmap(pixmap)
+                self.label_Exp_img2.setAlignment(
+                    QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+            except:
+                pass
+
+        def output():
+            self.progBar.setMaximum(1)
+
+        worker = Worker(predict)
         worker.signals.result.connect(output)
         self.threadpool.start(worker)
 

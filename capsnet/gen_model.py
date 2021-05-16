@@ -96,19 +96,21 @@ def build_graph(name, input_shape, output_class, mode, r):
     This contructs the whole architecture of Capsule Network 
     (Encoder + Decoder)
     '''
+    # Setup params
+    if name == 'MNIST':
+        params = params_MNIST
+    elif name == 'SMALLNORB':
+        params = params_SMALLNORB
+    elif name == 'CIFAR10':
+        params = params_CIFAR10
+    else:
+        raise RuntimeError(f'name {name} not recognized')
+
     # Encoder
     inputs = tf.keras.Input(input_shape)
     y_true = tf.keras.Input(output_class)
 
-    if name == 'MNIST':
-        encoder = encoder_graph(params_MNIST, input_shape, output_class, r)
-    elif name == 'SMALLNORB':
-        encoder = encoder_graph(params_SMALLNORB, input_shape, output_class, r)
-    elif name == 'CIFAR10':
-        encoder = encoder_graph(params_CIFAR10, input_shape, output_class, r)
-    else:
-        raise RuntimeError(f'name {name} not recognized')
-
+    encoder = encoder_graph(params, input_shape, output_class, r)
     primary_caps, digit_caps, digit_caps_len = encoder(inputs)
 
     encoder.summary()
@@ -122,19 +124,11 @@ def build_graph(name, input_shape, output_class, mode, r):
         noise = tf.keras.Input(
             (output_class, params['caps_digit_dim']))
         digit_caps_noise = tf.keras.layers.add([digit_caps, noise])
-        masked = Mask()([digit_caps_noise, y_true])
+        masked = Mask()(digit_caps_noise)
     else:
         raise RuntimeError(f'mode {mode} not recognized')
 
-    if name == 'MNIST':
-        decoder = decoder_graph(params_MNIST, input_shape, output_class)
-    elif name == 'SMALLNORB':
-        decoder = decoder_graph(params_SMALLNORB, input_shape, output_class)
-    elif name == 'CIFAR10':
-        decoder = decoder_graph(params_CIFAR10, input_shape, output_class)
-    else:
-        raise RuntimeError(f'name {name} not recognized')
-
+    decoder = decoder_graph(params, input_shape, output_class)
     x_reconstruct = decoder(masked)
 
     decoder.summary()
@@ -153,7 +147,7 @@ def build_graph(name, input_shape, output_class, mode, r):
         )
     elif mode == 'exp':
         return tf.keras.Model(
-            inputs=[inputs, y_true, noise],
+            inputs=[inputs, noise],
             outputs=[digit_caps_len, x_reconstruct],
             name='CapsNet'
         )
