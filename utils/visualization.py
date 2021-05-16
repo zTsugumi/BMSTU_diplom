@@ -19,7 +19,8 @@ def plot_image(x_batch, y_batch, class_names, n_img):
 
 
 def plot_image_misclass(x, y_true, y_pred, class_names, n_img):
-    maxc = 3
+    n_img = min(n_img, 20)
+    maxc = 4
     r = int(n_img / (maxc + 1)) + 1
     c = int(min(maxc, n_img))
 
@@ -28,8 +29,14 @@ def plot_image_misclass(x, y_true, y_pred, class_names, n_img):
 
     fig, axes = plt.subplots(r, c, figsize=(10, 5))
     axes = axes.flatten()
+
+    if x.shape[-1] == 2:    # for SmallNORB
+        xs = x[..., 0]
+    else:
+        xs = x
+
     for idx, ax in zip(idc, axes):
-        ax.imshow(x[idx, ..., 0], cmap='gray')
+        ax.imshow(xs[idx, ...], cmap='gray')
         ax.set_axis_off()
         idx_true = tf.argmax(y_true[idx])
         class_true = class_names[idx_true]
