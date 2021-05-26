@@ -7,7 +7,7 @@ params_MNIST = {
     'conv_kernel': 9,
     'conv_stride': 1,
 
-    'caps_primary': 16,
+    'caps_primary': 32,
     'caps_primary_dim': 8,
     'caps_primary_kernel': 9,
     'caps_primary_stride': 1,
@@ -38,7 +38,7 @@ params_CIFAR10 = {
     'caps_primary_kernel': 9,
     'caps_primary_stride': 2,
 
-    'caps_digit_dim': 32
+    'caps_digit_dim': 16
 }
 
 
@@ -80,7 +80,7 @@ def encoder_graph(params, input_shape, output_class):
         x = tf.keras.layers.BatchNormalization()(x)
 
         x = tf.keras.layers.Conv2D(
-            filters=128,
+            filters=256,
             kernel_size=3,
             strides=2,
             padding='valid',

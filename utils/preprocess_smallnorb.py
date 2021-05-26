@@ -24,9 +24,12 @@ def pre_process(dataset):
         x[idx] = tf.image.per_image_standardization(x[idx])
         y[idx] = data['label_category']
 
+    x_orig = x
+    # with tf.device('/CPU:0'):
+    # x = tf.image.per_image_standardization(x)
     y = tf.one_hot(y, depth=SMALLNORB_CLASS)
 
-    return x, y
+    return x, y, x_orig
 
 
 def pre_process_test(x, y):

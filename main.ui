@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>671</width>
-    <height>783</height>
+    <height>753</height>
    </rect>
   </property>
   <property name="font">
@@ -27,7 +27,7 @@
       <x>10</x>
       <y>50</y>
       <width>651</width>
-      <height>671</height>
+      <height>641</height>
      </rect>
     </property>
     <property name="font">
@@ -52,7 +52,7 @@ alternate-background-color: rgb(217, 217, 217);</string>
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="iconSize">
      <size>
@@ -70,7 +70,7 @@ alternate-background-color: rgb(217, 217, 217);</string>
         <x>10</x>
         <y>10</y>
         <width>621</width>
-        <height>221</height>
+        <height>171</height>
        </rect>
       </property>
       <property name="font">
@@ -145,7 +145,7 @@ alternate-background-color: rgb(217, 217, 217);</string>
        <property name="geometry">
         <rect>
          <x>150</x>
-         <y>160</y>
+         <y>120</y>
          <width>321</width>
          <height>31</height>
         </rect>
@@ -211,56 +211,14 @@ alternate-background-color: rgb(217, 217, 217);</string>
         </property>
        </item>
       </widget>
-      <widget class="QLabel" name="label_Test_nimg">
-       <property name="geometry">
-        <rect>
-         <x>150</x>
-         <y>120</y>
-         <width>141</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Segoe UI</family>
-         <pointsize>9</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Images to plot:</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="le_Test_nimg">
-       <property name="geometry">
-        <rect>
-         <x>300</x>
-         <y>120</y>
-         <width>171</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Segoe UI</family>
-         <pointsize>9</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>9</string>
-       </property>
-      </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox_5">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>230</y>
+        <y>190</y>
         <width>621</width>
-        <height>191</height>
+        <height>221</height>
        </rect>
       </property>
       <property name="font">
@@ -278,7 +236,7 @@ alternate-background-color: rgb(217, 217, 217);</string>
        <property name="geometry">
         <rect>
          <x>150</x>
-         <y>40</y>
+         <y>80</y>
          <width>141</width>
          <height>31</height>
         </rect>
@@ -299,7 +257,7 @@ alternate-background-color: rgb(217, 217, 217);</string>
        <property name="geometry">
         <rect>
          <x>150</x>
-         <y>80</y>
+         <y>120</y>
          <width>141</width>
          <height>31</height>
         </rect>
@@ -320,7 +278,7 @@ alternate-background-color: rgb(217, 217, 217);</string>
        <property name="geometry">
         <rect>
          <x>300</x>
-         <y>40</y>
+         <y>80</y>
          <width>171</width>
          <height>31</height>
         </rect>
@@ -338,7 +296,7 @@ alternate-background-color: rgb(217, 217, 217);</string>
        <property name="geometry">
         <rect>
          <x>300</x>
-         <y>80</y>
+         <y>120</y>
          <width>171</width>
          <height>31</height>
         </rect>
@@ -356,7 +314,7 @@ alternate-background-color: rgb(217, 217, 217);</string>
        <property name="geometry">
         <rect>
          <x>150</x>
-         <y>120</y>
+         <y>160</y>
          <width>321</width>
          <height>31</height>
         </rect>
@@ -373,6 +331,100 @@ alternate-background-color: rgb(217, 217, 217);</string>
         <string>Test</string>
        </property>
       </widget>
+      <widget class="QComboBox" name="cb_Test_class">
+       <property name="geometry">
+        <rect>
+         <x>300</x>
+         <y>40</y>
+         <width>171</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Segoe UI</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <item>
+        <property name="text">
+         <string>All classes</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>0</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>5</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>6</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>7</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>8</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>9</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="label_Test_class">
+       <property name="geometry">
+        <rect>
+         <x>150</x>
+         <y>40</y>
+         <width>141</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Segoe UI</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Class to predict:</string>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_5">
@@ -385,7 +437,7 @@ alternate-background-color: rgb(217, 217, 217);</string>
         <x>10</x>
         <y>10</y>
         <width>621</width>
-        <height>211</height>
+        <height>171</height>
        </rect>
       </property>
       <property name="font">
@@ -502,27 +554,6 @@ alternate-background-color: rgb(217, 217, 217);</string>
         <string>Model:</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="pb_Exp_reset">
-       <property name="geometry">
-        <rect>
-         <x>150</x>
-         <y>160</y>
-         <width>321</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Segoe UI</family>
-         <pointsize>9</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Reset</string>
-       </property>
-      </widget>
       <widget class="QPushButton" name="pb_Exp_loadModel">
        <property name="geometry">
         <rect>
@@ -548,8 +579,8 @@ alternate-background-color: rgb(217, 217, 217);</string>
      <widget class="QGroupBox" name="groupBox">
       <property name="geometry">
        <rect>
-        <x>9</x>
-        <y>220</y>
+        <x>10</x>
+        <y>190</y>
         <width>621</width>
         <height>411</height>
        </rect>
@@ -718,13 +749,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -755,13 +792,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -792,13 +835,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -829,13 +878,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -866,13 +921,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -903,13 +964,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -940,13 +1007,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -977,13 +1050,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -1014,13 +1093,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -1051,13 +1136,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -1088,13 +1179,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -1125,13 +1222,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -1162,13 +1265,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -1199,13 +1308,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -1236,13 +1351,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -1273,13 +1394,19 @@ alternate-background-color: rgb(217, 217, 217);</string>
          </font>
         </property>
         <property name="minimum">
-         <number>-10</number>
+         <number>-20</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>20</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
         </property>
         <property name="pageStep">
-         <number>1</number>
+         <number>2</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -1371,7 +1498,7 @@ alternate-background-color: rgb(217, 217, 217);</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>730</y>
+      <y>700</y>
       <width>651</width>
       <height>21</height>
      </rect>

@@ -16,6 +16,7 @@ from PyQt5.QtGui import *
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
     try:
+        tf.config.experimental.set_memory_growth(gpus[0], True)
         tf.config.experimental.set_virtual_device_configuration(
             gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)])
     except RuntimeError as e:
@@ -147,18 +148,35 @@ class MainWindow(QMainWindow):
         self.progBar.setMaximum(0)
 
         def test():
-            acc, err = self.model.evaluate(self.data.x_test, self.data.y_test)
-            y_pred, _, _, _ = self.model.predict(self.data.x_test)
+            nclass = int(self.cb_Test_class.currentIndex())
 
-            return acc, err, y_pred
+            if nclass > 0:
+                nclass -= 1
+                y = tf.argmax(self.data.y_test, axis=-1)
+                c = tf.constant(
+                    nclass, dtype=y.dtype, shape=y.shape)
+                indx = tf.where(tf.equal(y, c))
+                x_test = tf.gather_nd(self.data.x_test, indx)
+                y_test = tf.gather_nd(self.data.y_test, indx)
+                x_test_orig = tf.gather_nd(self.data.x_test_orig, indx)
+            else:
+                x_test = self.data.x_test
+                y_test = self.data.y_test
+                x_test_orig = self.data.x_test_orig
+
+            acc, err = self.model.evaluate(x_test, y_test)
+            y_pred, _, _, _ = self.model.predict(x_test)
+
+            return x_test_orig, y_test, acc, err, y_pred
 
         def output(res):
-            acc, err, y_pred = res
-            self.le_Test_acc.setText(f'{acc*100:.4f}%')
-            self.le_Test_err.setText(f'{err*100:.4f}%')
-            n_img = int(self.le_Test_nimg.text())
+            x_test_orig, y_test, acc, err, y_pred = res
+
+            self.le_Test_acc.setText(f'{acc*100:.2f}%')
+            self.le_Test_err.setText(f'{err*100:.2f}%')
+
             plot_image_misclass(
-                self.data.x_test, self.data.y_test, y_pred, self.data.class_names, n_img)
+                x_test_orig, y_test, y_pred, self.data.class_names)
             self.progBar.setMaximum(1)
 
         worker = Worker(test)
@@ -251,11 +269,14 @@ class MainWindow(QMainWindow):
                 [self.data.x_custom, noise])
 
             x_reconstruct = tf.cast(x_reconstruct * 255.0, dtype=tf.int8)
+            if x_reconstruct.shape[-1] == 2:
+                x_reconstruct = x_reconstruct[..., 0]
 
             # Plot result to screen
             try:
-                self.label_Exp_class.setText(f'Label: {label[0]:d}')
-                self.label_Exp_acc.setText(f'Acc: {acc[0]*100:.4f}%')
+                self.label_Exp_class.setText(
+                    f'Label: {self.data.class_names[label[0]]}')
+                self.label_Exp_acc.setText(f'Acc: {acc[0]*100:.2f}%')
                 img = tf.squeeze(x_reconstruct).numpy()
 
                 qformat = QImage.Format_Indexed8
@@ -271,6 +292,7 @@ class MainWindow(QMainWindow):
                              qformat)
                 img = img.rgbSwapped()
                 pixmap = QPixmap.fromImage(img)
+                # pixmap.save('test.jpg')
                 pixmap = pixmap.scaled(self.label_Exp_img.size(),
                                        QtCore.Qt.KeepAspectRatio)
                 self.label_Exp_img2.setPixmap(pixmap)

@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 
 EPS = tf.keras.backend.epsilon()
 
@@ -99,7 +100,7 @@ class DigitCaps(tf.keras.layers.Layer):
             initializer='glorot_uniform',
             name='W'
         )
-        self.C = self.add_weight(               # Coupling Coefficient
+        self.bias = self.add_weight(               # Coupling Coefficient
             shape=(self.C, H*W*input_C, 1),
             initializer='zeros',
             name='bias'
@@ -118,7 +119,12 @@ class DigitCaps(tf.keras.layers.Layer):
         a = a / tf.sqrt(tf.cast(self.L, tf.float32))
         a = tf.nn.softmax(a, axis=1)
 
-        s = tf.reduce_sum(u_hat*(a + self.C), axis=-2)
+        # print(u_hat.shape)
+        # print(a.shape)
+        # tf.print(tf.squeeze(safe_norm(u_hat)), summarize=-1, output_stream='file://test.txt')
+        # tf.print(tf.squeeze(a), summarize=-1, output_stream='file://test1.txt')
+
+        s = tf.reduce_sum(u_hat*(a + self.bias), axis=-2)
         v = squash(s)
 
         return v

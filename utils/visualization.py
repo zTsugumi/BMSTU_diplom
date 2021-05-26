@@ -18,16 +18,20 @@ def plot_image(x_batch, y_batch, class_names, n_img):
     plt.show()
 
 
-def plot_image_misclass(x, y_true, y_pred, class_names, n_img):
-    n_img = min(n_img, 20)
+def plot_image_misclass(x, y_true, y_pred, class_names, n_img=12):
+    idc = tf.squeeze(
+        tf.where(tf.argmax(y_pred, axis=-1) != tf.argmax(y_true, axis=-1)),
+        axis=-1)
+
+    if tf.equal(tf.size(idc), 0):
+        return
+
+    n_img = min(n_img, tf.size(idc))
     maxc = 4
     r = int(n_img / (maxc + 1)) + 1
     c = int(min(maxc, n_img))
 
-    idc = tf.squeeze(
-        tf.where(tf.argmax(y_pred, axis=-1) != tf.argmax(y_true, axis=-1)))
-
-    fig, axes = plt.subplots(r, c, figsize=(10, 5))
+    fig, axes = plt.subplots(r, c, figsize=(10, 5), squeeze=False)
     axes = axes.flatten()
 
     if x.shape[-1] == 2:    # for SmallNORB
@@ -45,6 +49,6 @@ def plot_image_misclass(x, y_true, y_pred, class_names, n_img):
         class_pred = class_names[idx_pred]
         class_pred_prob = y_pred[idx][idx_pred]
         ax.set_title(
-            f'Class {class_true}: {class_true_prob:.4f}\nPred {class_pred}: {class_pred_prob:.4f}')
+            f'True class: {class_true} - {class_true_prob*100:.4f}%\nPredicted class: {class_pred} - {class_pred_prob*100:.4f}%')
     plt.tight_layout()
     plt.show()

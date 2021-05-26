@@ -23,18 +23,19 @@ class Dataset(object):
         try:
             if self.data_name == 'MNIST':
                 if not custom_dir:
-                    (self.x_train, self.y_train), (self.x_test, self.y_test) = \
+                    (self.x_train, self.y_train), (self.x_test_orig, self.y_test) = \
                         tf.keras.datasets.mnist.load_data()
                     self.x_train, self.y_train = preprocess_mnist.pre_process(
                         self.x_train, self.y_train)
                     self.x_test, self.y_test = preprocess_mnist.pre_process(
-                        self.x_test, self.y_test)
-                    self.class_names = list(range(10))
+                        self.x_test_orig, self.y_test)
                 else:
                     img = tf.io.read_file(custom_dir)
                     img = tf.io.decode_image(img, channels=1, dtype=tf.float32)
                     img = tf.image.resize(img, [28, 28])
                     self.x_custom = tf.reshape(img, shape=[1, 28, 28, 1])
+
+                self.class_names = list(range(10))
 
             elif self.data_name == 'SMALLNORB':
                 if not custom_dir:
@@ -48,7 +49,7 @@ class Dataset(object):
                     )
                     self.x_train, self.y_train = preprocess_smallnorb.pre_process(
                         data_train)
-                    self.x_test, self.y_test = preprocess_smallnorb.pre_process(
+                    self.x_test, self.y_test, self.x_test_orig = preprocess_smallnorb.pre_process(
                         data_test)
                     self.x_test, self.y_test = preprocess_smallnorb.pre_process_test(
                         self.x_test, self.y_test)
@@ -56,32 +57,39 @@ class Dataset(object):
                 else:
                     img = tf.io.read_file(custom_dir)
                     img = tf.io.decode_image(
-                        img, channels=1, dtype=tf.float32)[1, ...]
-                    self.x_custom = tf.image.resize(img, [96, 96])
-                    self.x_custom, _ = preprocess_smallnorb.pre_process(
-                        self.x_custom, tf.constant(0))
+                        img, channels=1, dtype=tf.float32)
+                    img = tf.image.resize(img, [48, 48])
+                    bound = 8
+                    img = img[bound:-bound, bound:-bound, :]
+                    img = tf.tile(img, [1, 1, 2])
+                    self.x_custom = tf.reshape(img, shape=[1, 32, 32, 2])
+                    self.class_names = [
+                        'animal', 'human', 'plane', 'truck', 'car']
 
             elif self.data_name == 'CIFAR10':
                 if not custom_dir:
-                    (self.x_train, self.y_train), (self.x_test, self.y_test) = \
+                    (self.x_train, self.y_train), (self.x_test_orig, self.y_test) = \
                         tf.keras.datasets.cifar10.load_data()
                     self.x_train, self.y_train = preprocess_cifar10.pre_process(
                         self.x_train, self.y_train)
                     self.x_test, self.y_test = preprocess_cifar10.pre_process(
-                        self.x_test, self.y_test)
-                    self.class_names = ['airplane', 'automobile', 'bird',
-                                        'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+                        self.x_test_orig, self.y_test)
                 else:
                     img = tf.io.read_file(custom_dir)
                     img = tf.io.decode_image(
-                        img, channels=3, dtype=tf.float32)[1, ...]
-                    self.x_custom = tf.image.resize(img, [32, 32])
-                    self.x_custom, _ = preprocess_cifar10.pre_process(
-                        self.x_custom, tf.constant(0))
+                        img, channels=3, dtype=tf.float32)
+                    # img.set_shape([32, 32, 3])
+                    img = tf.image.resize(img, [32, 32])
+                    img = tf.image.per_image_standardization(img)
+                    self.x_custom = tf.reshape(img, shape=[1, 32, 32, 3])
+
+                self.class_names = ['airplane', 'automobile', 'bird',
+                                    'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
             else:
                 raise RuntimeError(
                     f'data_name {self.data_name} not recognized')
         except:
+            print('Something')
             pass
 
     def get_tf_data(self):

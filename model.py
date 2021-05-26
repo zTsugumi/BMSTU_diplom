@@ -26,15 +26,13 @@ class Model(object):
         else:
             dir_model = file_name
 
-        ok = True
         try:
             self.model.load_weights(dir_model)
             print(f'Load {file_name} successful')
-        except Exception as e:
-            ok = False
+            return True
+        except:
             print(f'[WARNING] {dir_model} not found')
-
-        return ok
+            return False
 
     def save_weight(self, epoch):
         file_name = f'/weights-{epoch:02d}.h5'
@@ -42,11 +40,15 @@ class Model(object):
         try:
             self.model.save_weights(dir_model)
             print(f'Save {file_name} successful')
-        except Exception as e:
+        except:
             print(f'[WARNING] {dir_model} not found')
 
     def predict(self, x):
-        return self.model.predict(x)
+        y_pred, x_reconstruct = self.model.predict(x)
+        label = tf.argmax(y_pred, axis=1)
+        acc = tf.reduce_max(y_pred, axis=1)
+
+        return y_pred, label, acc, x_reconstruct
 
     def evaluate(self, x_test, y_test):
         y_pred, _ = self.model.predict(x_test)
