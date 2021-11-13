@@ -429,7 +429,7 @@ alternate-background-color: rgb(217, 217, 217);</string>
     </widget>
     <widget class="QWidget" name="tab_5">
      <attribute name="title">
-      <string>Experiment</string>
+      <string>Classification</string>
      </attribute>
      <widget class="QGroupBox" name="groupBox_3">
       <property name="geometry">
